@@ -1,4 +1,4 @@
-function _clickTrackingLib(){
+function clickTrackingLib(){
 	var matchAry = [];
 	var RegExpCache = [
 		/(^|\s)external(\s|$)/i, //external links
