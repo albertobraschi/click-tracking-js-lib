@@ -1,12 +1,13 @@
 (function(){
 	function _clickTrackingLib(){
-		var matchAry = [];
-		var RegExpCache = [
-			/(^|\s)external(\s|$)/i, //external links
-			/\.(docx*|xlsx*|pptx*|exe|zip|pdf|xpi|rar|xls)$/i,
-			/^http/i,
-			/^(http|ftp|chrome|file|view-source)/i
-		];
+		var matchAry = [],
+			testedLinksCache = [],
+			RegExpCache = [
+				/(^|\s)external(\s|$)/i, //external links
+				/\.(docx*|xlsx*|pptx*|exe|zip|pdf|xpi|rar|xls)$/i,
+				/^http/i,
+				/^(http|ftp|chrome|file|view-source)/i
+			];
 
 		var matchPresets = [
 			function( a ){
@@ -56,19 +57,71 @@
 				case 'all-internal':
 					return matchPresets[6];
 			}
+
 			throw "No preset found for '" + index + "'";
 		}
 
 		if (document.body.addEventListener){
 			var addClickEvent = function( ele, evt ){
 				ele.addEventListener( "click", evt, false );
-			}
+			};
 		}
 		else if ( document.body.attachEvent ){
 			var addClickEvent = function( ele, evt ){
 				ele.attachEvent( "onclick", evt );
-			}
+			};
 		}
+
+		if (document.body.removeEventListener){
+			var removeClickEvent = function( ele, evt ){
+				ele.removeEventListener( "click", evt, false );
+			};
+		}
+		else if ( document.body.detachEvent ){
+			var removeClickEvent = function( ele, evt ){
+				ele.detachEvent( "onclick", evt );
+			};
+		}
+
+		var createNewTestCacheEntry = function( link, lastMatchIndex, clickFunctions, delayFunction, delay ){
+			var newTestCacheEntry = {
+				link: link,
+				lastMatchIndex: (lastMatchIndex) ? lastMatchIndex : 0,
+				clickFunctions: (clickFunctions) ? clickFunctions : [],
+				delayFunction: delayFunction,
+				delay: delay
+			};
+
+			return newTestCacheEntry;
+		};
+
+		var addTestCacheEntry = function( link, lastMatchIndex, clickFunctions, delayFunction, delay ){
+			var newTestCacheEntry = createNewTestCacheEntry( arguments );
+
+			// add test cache entry to cache array
+			testedLinksCache.push(newTestCacheEntry);
+
+			return newTestCacheEntry;
+		};
+
+		var replaceTestCacheEntry = function( index ){
+			var testCacheEntry = testedLinksCache[i],
+				newTestCacheEntry = createNewTestCacheEntry( testCacheEntry.link );
+
+			// detach click events from link
+			for( var i = 0; i < testCacheEntry.clickFunctions.length; i++ ){
+				removeClickEvent( testCacheEntry.link, testCacheEntry.clickFunctions[i] );
+			}
+
+			// detach delay event from link
+			if( testCacheEntry.delayFunction ) removeClickEvent( testCacheEntry.link, testCacheEntry.delayFunction );
+
+			return testedLinksCache[ index ] = newTestCacheEntry;
+		};
+
+		var searchTestedLinksCache = function(){
+			
+		};
 
 		var delayClickEventHandler = function( e, delay ){
 			if (!e) var e = window.event;
@@ -82,62 +135,144 @@
 			setTimeout( 'window.location = "' + targ.href + '"', delay );
 
 			return false;
-		}
+		};
 
 		this.addMatch = function( match ){
 			matchAry.push( match );
-		}
+		};
 
 		this.addMatches = function( matches ){
 			matchAry = matchAry.concat( matches );
-		}
+		};
 
-		this.attachTrackingFunctions = function( delay ){
-			if(matchAry.length == 0 || document.links.length == 0) return;
+		this.attachTrackingFunctions = function( links, delay, clean ){
+			if(matchAry.length == 0) return;
+
+			var doCleanUp = false;
+			var links = ( links.href ) ? [links] : ( links.length ) ? links : (!links) ? (function(){
+				doCleanUp = true;
+				return document.links;
+			})() : [];
+
+			if( !links.length ) return;
 
 			var link,
-				links = document.links,
 				i = links.length - 1,
-				recordAry = [];
-				linksChanged = [],
+				z,
+				clickFunc,
+				matchAryLen = matchAry.length,
+				testCacheEntry,
+				cleanUpKeepersAry = [],
 				delay = (delay != undefined) ? ((delay) ? delay : false) : 99;
 
-			for( ; i >= 0; i-- ){
+			if(delay){
+				var delayFunc = function(e){
+					delayClickEventHandler(e, delay)
+				};
+			}
+
+			linkLoop : for( ; i >= 0; i-- ){
 				link = links[i];
-	
-				(function( link, matchAry ){
-					for(var j = 0; j < matchAry.length; j++ ){
+
+				// loop through the array of links already tested
+				for( z = testedLinksCache.length - 1; z >= 0; z-- ){
+					if (link === testedLinksCache[z].link) {
+						if (clean)
+							testCacheEntry = replaceTestCacheEntry( z );
+						else
+							testCacheEntry = testedLinksCache[ z ];
+
+						if( doCleanUp ) cleanUpKeepersAry[z] = true;
+
+						else if (testCacheEntry.lastMatchIndex == matchAryLen)
+							continue linkLoop;
+
+						break;
+					}
+				}
+				if(z<0){
+					testCacheEntry = addTestCacheEntry( link );
+				}
+
+				// get a reference to the current link which can be used later
+				(function( link ){
+					// loop through the the remaining match functions in the array of provided match functions
+					for(var j = testCacheEntry.lastMatchIndex; j < matchAryLen; j++ ){
+						// check link with provided match function
 						if( matchAry[j].match( link ) ){
-							if (delay && !recordAry[i]) {
-								recordAry[i] = true;
-								linksChanged.push(link);
-							}
-	
+							// Add provided click event wrapped in another lambda providing a reference to the link element
 							(function(j){
-								addClickEvent( link, function( e ){
+								// Create the wrapper lambda around the provided tracking function
+								// Add the wrapper lambda to the test cache entry's click functions array
+								testCacheEntry.clickFunctions.push( function( e ){
 									matchAry[j].trackingFunc( e, link );
-								});
+								} );
+
+								// Attach the wrapper lambda to the link's click event
+								addClickEvent( link, testCacheEntry.clickFunctions[ testCacheEntry.clickFunctions.length ] );
 							})(j);
 						}
 					}
-				})( link, matchAry );
-			}
+				})( link );
 
-			if(delay === false) return;
+				// record the length of the match array at the current moment
+				testCacheEntry.lastMatchIndex = matchAryLen;
 
-			var delayFunc = function(e){
-				delayClickEventHandler(e, delay)
-			}
+				if( delay === false ){
+					if( testCacheEntry.delayFunction ){
+						// remove the old delay function
+						removeClickEvent( link, testCacheEntry.delayFunction );
+						testCacheEntry.delayFunction = undefined;
+						testCacheEntry.delay = undefined;
+					}
+					continue;
+				}
+				else if( testCacheEntry.clickFunctions.length === 0 ||
+					testCacheEntry.delay == delay ||
+					( link.target && ( link.target == "_blank" || link.target == "_new" ) ) ||
+					!link.protocol.match( RegExpCache[3] )
+				) continue;
 
-			for( i = linksChanged.length - 1; i >= 0; i-- ){
-				link = linksChanged[i];
+				// record  new delay function data to test cache entry
+				testCacheEntry.delayFunction = delayFunc;
+				testCacheEntry.delay = delay;
 
-				if ( (link.target && (link.target == "_blank" || link.target == "_new") || !link.protocol.match(RegExpCache[3])) ) continue;
-				link.setAttribute("onclick","return false;");
+				link.setAttribute( "onclick", "return false;" );
 
 				addClickEvent( link, delayFunc );
 			}
-		}
+
+			if( doCleanUp ) doCleanUpHelper( cleanUpKeepersAry );
+
+			return;
+		};
+
+		var doCleanUpHelper = function( cleanUpKeepersAry ){
+			var startIndex = 0, numToRemove = 0, marker, i = 0;
+
+			for( ; i < testedLinksCache.length; i++ ){
+				marker = startIndex + numToRemove + 1;
+				if( !cleanUpKeepersAry[i] ){
+					if( marker >= i ){
+						numToRemove++;
+						continue;
+					}
+					else{
+						startIndex = i;
+						numToRemove = 1;
+					}
+				}
+				else if ( marker >= i ){
+					testedLinksCache.splice( startIndex, numToRemove );
+				}
+			}
+			marker = startIndex + numToRemove + 1;
+			if( marker >= i ){
+				testedLinksCache.splice( startIndex, numToRemove );
+			}
+
+			return;
+		};
 	};
 
 	clickTrackingLib = new _clickTrackingLib();
