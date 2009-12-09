@@ -1,0 +1,58 @@
+<html>
+	<head>
+		<title>Click Tracking - Test Page</title>
+	</head>
+	<body>
+		<h1>Click Tracking - Test Page</h1>
+		<p>
+			This test was started by <a href="http://erikvold.com">Erik Vold</a>.
+		</p>
+		<p>
+			<a href="javascript:void(0);">javascript:void(0);</a>
+		</p>
+		<p>
+			<script>
+			document.write('<a href="view-source:'+window.location.href+'">View Source</a>');
+			</script>
+		</p>
+		<p>
+			<a class="download" href="../click-tracking-lib.js">Download JS here</a>
+		</p>
+
+		<script src="../click-tracking-lib.js" type="text/javascript"></script>
+		<script>
+			//var test = new clickTrackingLib._clickTrackingLib();
+			var test = clickTrackingLib;
+			var matchAry = [
+				{
+					match: test.getMatchPreset( "all-external" ),
+					trackingFunc: function(){
+						alert("external");
+					}
+				},
+				{
+					match: function(link){
+						return (link.className.match(/download/i)) ? true : false;
+					},
+					trackingFunc: function(e, link){
+						alert(link.href);
+					}
+				},
+				{
+					match: test.getMatchPreset( "all-internal" ),
+					trackingFunc: function(e, link){
+						alert("internal");
+					}
+				}/*,
+				{
+					match: test.getMatchPreset( "all-interxxxnal" ),
+					trackingFunc: function(e, link){
+						alert("internal");
+					}
+				}*/
+			];
+			test.addMatches( matchAry );
+			test.attachTrackingFunctions();
+		</script>
+	</body>
+</html>
