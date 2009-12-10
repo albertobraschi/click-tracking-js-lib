@@ -119,10 +119,6 @@
 			return testedLinksCache[ index ] = newTestCacheEntry;
 		};
 
-		var searchTestedLinksCache = function(){
-			
-		};
-
 		var delayClickEventHandler = function( e, delay ){
 			if (!e) var e = window.event;
 
