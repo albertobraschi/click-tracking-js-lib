@@ -1,5 +1,5 @@
 (function(){
-	if(!clickTrackingLib) return;
+	if(clickTrackingLib == undefined) clickTrackingLib = {};
 
 	var RegExpCache = [
 			/(^|\s)external(\s|$)/i, //external links
@@ -57,5 +57,5 @@
 		}
 
 		throw "No preset found for '" + index + "'";
-	}
+	};
 })();
