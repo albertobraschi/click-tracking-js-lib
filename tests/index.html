@@ -19,7 +19,11 @@
 			<a class="download" href="../click-tracking-lib.js">Download JS here</a>
 		</p>
 
+		<!--
+		<script src="../click-tracking-lib-with-presets.js" type="text/javascript"></script>
+		-->
 		<script src="../click-tracking-lib.js" type="text/javascript"></script>
+		<script src="../click-tracking-presets.js" type="text/javascript"></script>
 		<script>
 			//var test = new clickTrackingLib._clickTrackingLib();
 			var test = clickTrackingLib;
@@ -35,7 +39,7 @@
 						return (link.className.match(/download/i)) ? true : false;
 					},
 					trackingFunc: function(e, link){
-						alert(link.href);
+						alert("download");
 					}
 				},
 				{
@@ -52,10 +56,13 @@
 				}*/
 			];
 			test.addMatches( matchAry );
-			test.attachTrackingFunctions();
+			test.attachTrackingFunctions(document.createElement('input'),50);
 
 			var newA = document.createElement("a");
-			
+			newA.href="http://erikvold.com/";
+			document.body.appendChild(newA);
+			test.attachTrackingFunctions( newA );
+			newA.innerHTML = "ErikVold.com";
 		</script>
 	</body>
 </html>
