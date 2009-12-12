@@ -2,6 +2,7 @@ JAVASCRIPT CLICK TRACKING LIBRARY
 By Erik Vold ( http://erikvold.com/ )
 
 
+
 PURPOSE:
 To help web publishers easily track link clicks the correct way, across browser platforms, with tools GA and GWO.
 
@@ -10,10 +11,71 @@ GWO test where the conversion is a click through. This javascript library was de
 simple.
 
 
+
 ABOUT:
+- clickTrackingLib:
 Adding the click-tracking-lib.js or the click-tracking-lib-with-presets.js to a web page provides you with a
-clickTrackingLib object. Once you provide the clickTrackingLib with some match objects, you can then have
-clickTrackingLib review a bunch of links to determine
+clickTrackingLib javascript object. Once you provide clickTrackingLib with some match objects, you can then
+have clickTrackingLib scan a single, set, or all document links to determine if the link(s) should have
+tracking functions applied to it or not, and do so if needed. If one or more tracking functions are applied to
+a link, then a delay function will be applied to the link (this can be disabled too of course, and the delay can
+user defined but the default is 99 ms).
+
+
+- Presets:
+There are a number of presets available if you use click-tracking-lib-with-presets.js or click-tracking-presets.js;
+presets are predefined match functions for common use cases, such as matching all internal links, or external links,
+or document links. They can be used as they written, you could cut out the ones you won't use, or simply use them as
+examples when you define your own custom match objects.
+
+The can be accessed from the clickTrackingLib.getMatchPreset( name ) method. The possible name values and the meanings
+behind them are as follows:
+- 'rel-external': matches rel-external links
+- 'external-hostname': matches external hostname links
+- 'all-external': matches all rel-external and external hostname links
+- 'filetypes': matches file names
+- 'non-rel-external': matches non-rel-external links
+- 'internal-hostname': matches internal hostname links
+- 'all-internal': matches non-rel-external links or internal hostname links
+
+
+- Match Object
+Any object that has a 'match(link):boolean' method and 'trackingFunc(e,link):void' method defined.
+
+
+- new clickTrackingLib._clickTrackingLib();
+
+If you want to create multiple clickTrackingLib objects, that contain different sets of match object arrays, then
+you need to create a new one, like so:
+
+var myNewClickTrackingObj = new clickTrackingLib._clickTrackingLib();
+
+This will give you a new object, myNewClickTrackingObj, which is like clickTrackingLib in all but two ways. First
+myNewClickTrackingObj will not have a _clickTrackingLib() method, and second it will not have a getMatchPreset()
+method, even if clickTrackingLib.getMatchPreset() was defined. This is because you don't need a bunch of objects
+in memory with those two methods, only one, which is the singleton clickTrackingLib object.
+
+
+
+HOW TO USE:
+- Download either click-tracking-lib-with-presets.js or click-tracking-lib.js (see ABOUT fore more information)
+- Minify it with one of the following options:
+-- YUICompressor: http://developer.yahoo.com/yui/compressor/
+-- Dojo ShrinkSafe: http://dojotoolkit.org/docs/shrinksafe
+-- Packer: http://dean.edwards.name/packer/
+-- JSMin: http://crockford.com/javascript/jsmin
+-- Google's Closure: http://code.google.com/intl/pl/closure/compiler/
+- Upload the minified script to your site
+- Add <script src=".." type="text/javascript"></script> for the script to the desired pages
+- Write some code:
+-- define some match objects (just an object with a match method and trackingFunc method)
+-- Add match objects to your clickTrackingLib object
+-- Call the clickTrackingLib.attachTrackingFunctions( links, delay ) when desired.
+--- links: can be a single anchor element, an array of anchor elements, or falsely so that
+           the default is used, which is document.links.
+--- delay: should be a positive integer or falsey, in the latter case no delay function will be added to the
+           links scanned, in the former case a delay function will be applied with the specified delay value.
+
 
 
 EXAMPLE:
