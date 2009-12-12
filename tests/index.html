@@ -25,11 +25,10 @@
 		<script src="../click-tracking-lib.js" type="text/javascript"></script>
 		<script src="../click-tracking-presets.js" type="text/javascript"></script>
 		<script>
-			//var test = new clickTrackingLib._clickTrackingLib();
-			var test = clickTrackingLib;
+			var test = new clickTrackingLib._clickTrackingLib();
 			var matchAry = [
 				{
-					match: test.getMatchPreset( "all-external" ),
+					match: clickTrackingLib.getMatchPreset( "all-external" ),
 					trackingFunc: function(){
 						alert("external");
 					}
@@ -43,26 +42,21 @@
 					}
 				},
 				{
-					match: test.getMatchPreset( "all-internal" ),
+					match: clickTrackingLib.getMatchPreset( "all-internal" ),
 					trackingFunc: function(e, link){
 						alert("internal");
 					}
-				}/*,
-				{
-					match: test.getMatchPreset( "all-interxxxnal" ),
-					trackingFunc: function(e, link){
-						alert("internal");
-					}
-				}*/
+				}
 			];
 			test.addMatches( matchAry );
-			test.attachTrackingFunctions(document.createElement('input'),50);
+			test.attachTrackingFunctions(null,50);
 
 			var newA = document.createElement("a");
 			newA.href="http://erikvold.com/";
 			document.body.appendChild(newA);
-			test.attachTrackingFunctions( newA );
 			newA.innerHTML = "ErikVold.com";
+
+			test.attachTrackingFunctions( newA );
 		</script>
 	</body>
 </html>

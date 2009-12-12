@@ -2,7 +2,47 @@ JAVASCRIPT CLICK TRACKING LIBRARY
 By Erik Vold ( http://erikvold.com/ )
 
 
+PURPOSE:
+To help web publishers easily track link clicks the right way, with tools GA and GWO.
 
+
+EXAMPLE:
+<script src="../click-tracking-lib.js" type="text/javascript"></script>
+<script src="../click-tracking-presets.js" type="text/javascript"></script>
+<script>
+	var test = new clickTrackingLib._clickTrackingLib();
+	var matchAry = [
+		{
+			match: clickTrackingLib.getMatchPreset( "all-external" ),
+			trackingFunc: function(){
+				alert("external");
+			}
+		},
+		{
+			match: function(link){
+				return (link.className.match(/download/i)) ? true : false;
+			},
+			trackingFunc: function(e, link){
+				alert("download");
+			}
+		},
+		{
+			match: clickTrackingLib.getMatchPreset( "all-internal" ),
+			trackingFunc: function(e, link){
+				alert("internal");
+			}
+		}
+	];
+	test.addMatches( matchAry );
+	test.attachTrackingFunctions(null,50);
+
+	var newA = document.createElement("a");
+	newA.href="http://erikvold.com/";
+	document.body.appendChild(newA);
+	newA.innerHTML = "ErikVold.com";
+
+	test.attachTrackingFunctions( newA );
+</script>
 
 
 CHANGE LOG:
