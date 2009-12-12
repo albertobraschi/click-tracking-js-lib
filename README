@@ -3,7 +3,17 @@ By Erik Vold ( http://erikvold.com/ )
 
 
 PURPOSE:
-To help web publishers easily track link clicks the right way, with tools GA and GWO.
+To help web publishers easily track link clicks the correct way, across browser platforms, with tools GA and GWO.
+
+Typically a web publisher will want to do something like track all external links on a website with GA, or setup a
+GWO test where the conversion is a click through. This javascript library was designed to make tasks such as these
+simple.
+
+
+ABOUT:
+Adding the click-tracking-lib.js or the click-tracking-lib-with-presets.js to a web page provides you with a
+clickTrackingLib object. Once you provide the clickTrackingLib with some match objects, you can then have
+clickTrackingLib review a bunch of links to determine
 
 
 EXAMPLE:
