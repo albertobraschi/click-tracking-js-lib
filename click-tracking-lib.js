@@ -37,6 +37,10 @@
 
 			setTimeout( 'window.location = "' + targ.href + '"', delay );
 
+			// disable the click event default functionality
+			if (e.preventDefault) e.preventDefault(); // w3c
+			else e.returnValue  = false; // for ie
+
 			return false;
 		};
 
@@ -92,9 +96,6 @@
 					( link.target && ( link.target == "_blank" || link.target == "_new" ) ) ||
 					!link.protocol.match( RegExpCache[0] )
 				) continue;
-
-				// make the 'onclick' html attribute for the link return false, which will disable the browser from redirecting the user
-				link.setAttribute( "onclick", "return false;" );
 
 				// add delay function which will redirect the user to the desired href after a small delay
 				addClickEvent( link, delayFunc );
