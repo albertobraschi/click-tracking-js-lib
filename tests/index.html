@@ -5,7 +5,7 @@
 	<body>
 		<h1>Click Tracking - Test Page</h1>
 		<p>
-			This test was started by <a href="http://erikvold.com">Erik Vold</a>.
+			This test was started by <a id="erikvoldcom" onclick="alert('1');return true;" href="http://erikvold.com">Erik Vold</a>.
 		</p>
 		<p>
 			<a href="javascript:void(0);">javascript:void(0);</a>
@@ -57,6 +57,11 @@
 			newA.innerHTML = "ErikVold.com";
 
 			test.attachTrackingFunctions( newA );
+
+			document.getElementById('erikvoldcom').onclick = function(e){
+				alert('2');
+				return true;
+			}
 		</script>
 	</body>
 </html>
